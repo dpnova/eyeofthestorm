@@ -77,6 +77,7 @@ NOTE: Significant portions of this code are lifted directly from DRF:
     https://github.com/tomchristie/django-rest-framework
 
 The DRF License:
+
     Copyright (c) 2011-2014, Tom Christie All rights reserved.
 
     Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
