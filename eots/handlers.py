@@ -69,7 +69,6 @@ class RESTHandler(RequestHandler):
         data, media_type, charset = yield self.resource.apply_renderer(
             response_data, context)
 
-
         content_type = media_type
         if charset:
             content_type = "%s; charset=%s" % (media_type, charset)

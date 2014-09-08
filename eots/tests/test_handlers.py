@@ -2,6 +2,8 @@ from cyclone.httpserver import HTTPRequest
 from cyclone.web import Application
 from mock import Mock
 from twisted.trial import unittest
+from twisted.internet.defer import succeed
+from twisted.python import log
 
 from eots import ResourceSet
 from eots.handlers import RESTHandler
@@ -51,7 +53,6 @@ class RESTHandlerTest(unittest.TestCase):
     def test_prepare(self):
         self.handler.resource = Mock()
         self.handler.prepare()
-        self.handler.resource.perform_authentication.assert_called_with()
         self.handler.resource.check_permissions.assert_called_with()
         self.handler.resource.check_throttles.assert_called_with()
         self.handler.resource.perform_content_negotiation.assert_called_with()
@@ -65,11 +66,16 @@ class RESTHandlerTest(unittest.TestCase):
             self.assertEqual(result, None)
             res = self.request.connection.write.call_args_list[0][0][0]
             self.assertTrue("['item']" in res)
-
         return self.handler.head().addBoth(handle_result)
 
     def test_post(self):
-        self.handler.post()
+        self.handler.resource.create.return_value = "['item']"
+        self.handler.render = Mock(return_value=succeed(None))
+
+        def cb(result):
+            self.assertEqual(result, None)
+            self.handler.render.assert_called_with("['item']")
+        return self.handler.post().addCallbacks(cb, log.err)
 
     def test_delete(self):
         self.handler.delete()

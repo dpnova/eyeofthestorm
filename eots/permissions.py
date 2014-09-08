@@ -19,7 +19,10 @@ class IsOwnerOrReadOnly(Permission):
         return False
 
     def has_object_permission(self, handler, resource, obj):
-        return self.is_owner(handler, resource)
+        return self.is_owner(handler, resource, obj)
+
+    def has_permission(self, handler, resource):
+        return True
 
 
 class IsAdminOrCanCreate(Permission):
