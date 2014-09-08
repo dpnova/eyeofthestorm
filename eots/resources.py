@@ -7,7 +7,7 @@ from .exceptions import ResourceVersionNotFoundError
 from .handlers import RESTHandler
 from .negotiation import ContentNegotiator, AcceptsVersionNegotiator
 from .permissions import Permission
-from .renderers import Renderer
+from .renderers import Renderer, JSONRenderer
 from .serializers import Serializer
 from .parsers import JSONParser
 
@@ -108,7 +108,7 @@ class RESTResource(object):
     versions.
     """
     serializer_class = Serializer
-    renderer_classes = [Renderer]
+    renderer_classes = [JSONRenderer]
     permission_classes = [Permission]
     authentication_classes = [Authenticator]
     parser_classes = [JSONParser]
@@ -166,7 +166,7 @@ class RESTResource(object):
             if auth_results is not None:
                 self._authenticator = authenticator
                 self._user, self._auth = auth_results
-                return
+                return self._user
         self._not_authenticated()
 
     def _not_authenticated(self):
@@ -239,3 +239,12 @@ class RESTResource(object):
 
     def get_parsers(self):
         return [parser() for parser in self.parser_classes]
+
+    def get_id_for_response(self, response):
+        """
+        Overwrite to allow the handler to get the new object id.
+
+                def get_id_for_response(self, response):
+                    return response['data']['id']
+        """
+        pass

@@ -55,12 +55,20 @@ class RESTHandler(RequestHandler):
     def render(self, response_data, **kwargs):
         """
         Once we have get a response, we need to render it and return.
+
+        We use the serializer to get a dict version of the data returned.
+        We use the renderer to turn it into whatever content was requested
+        as part of the content negotiation process.
+
+        Finally we can set the character encoding and the relevant content type
+        before finishing the request from the client.
         """
         response_data = yield self.resource.apply_serializer(response_data)
         context = self.get_template_namespace()
         context.update(kwargs)
         data, media_type, charset = yield self.resource.apply_renderer(
             response_data, context)
+
 
         content_type = media_type
         if charset:
@@ -85,9 +93,24 @@ class RESTHandler(RequestHandler):
         return self.get(id)
 
     def post(self, id=None):
+        """Accept a POST request to create a new object"""
+
+        def before_render(result):
+            """Set headers etc before rendering content"""
+            self.set_header(
+                "Location",
+                self.request.path + "/" +
+                str(self.resource.get_id_for_response(result))
+            )
+            self.set_status(201)
+            return result
+
         body = self.resource.accepted_parser.parse(self.request.body)
-        return maybeDeferred(
-            self.resource.create, body).addCallback(self.render).addErrback(log.err)
+        return maybeDeferred(self.resource.create, body).addCallback(
+            before_render,
+        ).addCallback(
+            self.render
+        )
 
     def delete(self, id=None):
         pass

@@ -12,3 +12,7 @@ class Renderer(object):
         Please overwrite this method in subclasses for specific render types.
         """
         return json.dumps(response_data)
+
+
+class JSONRenderer(Renderer):
+    pass
