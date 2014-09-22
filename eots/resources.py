@@ -195,7 +195,7 @@ class RESTResource(object):
     def apply_renderer(self, response_data, context):
         response = yield maybeDeferred(
             self.accepted_renderer.render,
-            response_data, context, self.media_type)
+            response_data, self.media_type, context)
         returnValue(
             (response, self.media_type, self.accepted_renderer.charset)
         )
