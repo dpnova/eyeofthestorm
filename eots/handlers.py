@@ -5,6 +5,7 @@ import json
 
 
 class RESTHandler(RequestHandler):
+    parsed_body = None
 
     def initialize(self, **kwargs):
         """
@@ -42,6 +43,8 @@ class RESTHandler(RequestHandler):
         self.resource.check_permissions()
         self.resource.check_throttles()
         self.resource.perform_content_negotiation()
+        self.parsed_body = self.resource.accepted_parser.parse(
+            self.request.body)
 
     def get_template_namespace(self):
         """
@@ -104,8 +107,9 @@ class RESTHandler(RequestHandler):
             self.set_status(201)
             return result
 
-        body = self.resource.accepted_parser.parse(self.request.body)
-        return maybeDeferred(self.resource.create, body).addCallback(
+        return maybeDeferred(
+            self.resource.create, self.parsed_body
+        ).addCallback(
             before_render,
         ).addCallback(
             self.render
@@ -119,9 +123,9 @@ class RESTHandler(RequestHandler):
 
     def put(self, id=None):
         """Accept a PUT request to update an existing object"""
-
-        body = self.resource.accepted_parser.parse(self.request.body)
-        return maybeDeferred(self.resource.update, body).addCallback(
+        return maybeDeferred(
+            self.resource.update, self.parsed_body
+        ).addCallback(
             self.render
         )
 
