@@ -84,6 +84,8 @@ class RESTHandlerTest(unittest.TestCase):
         self.handler.patch()
 
     def test_put(self):
+        self.handler.render = Mock()
+        self.handler.return_value = None
         self.handler.put()
 
     def test_options(self):
