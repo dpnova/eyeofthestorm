@@ -6,6 +6,7 @@ import json
 
 class RESTHandler(RequestHandler):
     parsed_body = None
+    validated_request_data = None
 
     def initialize(self, **kwargs):
         """
@@ -45,6 +46,9 @@ class RESTHandler(RequestHandler):
         self.resource.perform_content_negotiation()
         self.parsed_body = self.resource.accepted_parser.parse(
             self.request.body)
+        self.resource.apply_serializer(self.parsed_body).addCallback(
+            lambda x: setattr(self, "validated_request_data", x)
+        )
 
     def get_template_namespace(self):
         """
@@ -66,7 +70,7 @@ class RESTHandler(RequestHandler):
         Finally we can set the character encoding and the relevant content type
         before finishing the request from the client.
         """
-        response_data = yield self.resource.apply_serializer(response_data)
+        # response_data = yield self.resource.apply_serializer(response_data)
         context = self.get_template_namespace()
         context.update(kwargs)
         data, media_type, charset = yield self.resource.apply_renderer(
@@ -108,7 +112,7 @@ class RESTHandler(RequestHandler):
             return result
 
         return maybeDeferred(
-            self.resource.create, self.parsed_body
+            self.resource.create, self.validated_request_data
         ).addCallback(
             before_render,
         ).addCallback(
@@ -124,7 +128,7 @@ class RESTHandler(RequestHandler):
     def put(self, id=None):
         """Accept a PUT request to update an existing object"""
         return maybeDeferred(
-            self.resource.update, self.parsed_body
+            self.resource.update, self.validated_request_data
         ).addCallback(
             self.render
         )
