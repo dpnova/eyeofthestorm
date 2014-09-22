@@ -1,2 +1,2 @@
 [report]
-omit=example_app.py
+omit=example_app.py,setup.py,eots/client.py
