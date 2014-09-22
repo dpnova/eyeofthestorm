@@ -118,7 +118,12 @@ class RESTHandler(RequestHandler):
         pass
 
     def put(self, id=None):
-        pass
+        """Accept a PUT request to update an existing object"""
+
+        body = self.resource.accepted_parser.parse(self.request.body)
+        return maybeDeferred(self.resource.update, body).addCallback(
+            self.render
+        )
 
     def options(self, id=None):
         pass

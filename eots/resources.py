@@ -83,7 +83,7 @@ class ResourceSet(object):
         list_handler_data.update(data or {})
         return [
             url(
-                _url_with_prefix(prefix, slug) + r"/(\d+)",
+                _url_with_prefix(prefix, slug) + r"/(.+)$",
                 self.handler, name="%s_root" % self.slug,
                 kwargs=detail_handler_data),
             url(
@@ -113,7 +113,6 @@ class RESTResource(object):
     authentication_classes = [Authenticator]
     parser_classes = [JSONParser]
     content_negotiation_class = ContentNegotiator
-
 
     locale = None
     version = None

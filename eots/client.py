@@ -31,19 +31,22 @@ class RESTClient(object):
         }
 
     def retrieve(self, path, id, *args, **kwargs):
-        return treq.get(
+        return self._make_request(
+            "GET",
             self._full_url(path, id),
-            headers=self._all_extra_headers())
+            **kwargs
+        )
 
     def list(self, path, *args, **kwargs):
         return treq.get(
-            self._full_url(path),
-            headers=self._all_extra_headers())
+            self._full_url(path))
 
-    def update(self, path, id, *args, **kwargs):
-        return treq.put(
+    def update(self, path, id, **kwargs):
+        return self._make_request(
+            "PUT",
             self._full_url(path, id),
-            headers=self._all_extra_headers())
+            **kwargs
+        )
 
     def delete(self, path, id, *args, **kwargs):
         return treq.delete(
@@ -51,7 +54,7 @@ class RESTClient(object):
             headers=self._all_extra_headers())
 
     def create(self, path, data, **kwargs):
-        print data
+        path = self._full_url(path)
         return self._make_request("POST", path, data=data, **kwargs)
 
     def info(self, path, id=None, *args, **kwargs):
@@ -61,10 +64,13 @@ class RESTClient(object):
 
     def _make_request(self, method, path, data=None, *args, **kwargs):
         data = json.dumps(data) if data is not None else None
+        headers = self._all_extra_headers()
+        new_headers = kwargs.pop("headers", {})
+        headers.update(new_headers)
         return treq.request(
             method,
-            self._full_url(path),
-            headers=self._all_extra_headers(),
+            path,
+            headers=headers,
             data=data,
             **kwargs
         ).addCallbacks(

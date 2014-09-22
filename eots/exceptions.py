@@ -15,3 +15,7 @@ class NoRendererException(RESTException):
 
 class ResourceVersionNotFoundError(HTTPError, RESTException):
     pass
+
+
+class ParseError(RESTException):
+    pass
