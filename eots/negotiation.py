@@ -55,12 +55,22 @@ class AcceptsVersionNegotiator(VersionNegotiator):
     This uses the Accept header but can fallback to the "v" query param.
     """
     def get_version(self, request):
+        version = None
+
+        # Attempt to get version from Accept header
         accepts = request.headers.get("Accept")
         if accepts:
-            accepts, params = parse_header(accepts)
-            return params.get("v")
-        else:
-            return request.arguments["v"][0]
+            _, params = parse_header(accepts)
+            version = params.get('v')
+
+        # Attempt to get version from query params
+        if not version:
+            try:
+                version = request.arguments['v'][0]
+            except (KeyError, TypeError, IndexError):
+                pass
+
+        return version
 
     def select_version(self, request, versions):
         """
