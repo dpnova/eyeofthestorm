@@ -43,10 +43,16 @@ class ContentNegotiatorTest(unittest.TestCase):
 class AcceptsVersionNegotiatorTest(unittest.TestCase):
     def test_get_version(self):
         request = Mock()
+        request.headers = {"Accept": "text/html; v=1"}
+        self.assertEqual("1", AcceptsVersionNegotiator().get_version(request))
+
+    def test_get_version_returns_None_when_no_version_specified(self):
+        request = Mock()
         request.headers = {"Accept": "text/html"}
         self.assertEqual(None, AcceptsVersionNegotiator().get_version(request))
 
-    def test_get_version(self):
+    def test_get_version_will_fallback_to_query_params(self):
         request = Mock()
-        request.headers = {"Accept": "text/html; v=1"}
-        self.assertEqual("1", AcceptsVersionNegotiator().get_version(request))
+        request.headers = {"Accept": "text/html"}
+        request.arguments = {'v': [1]}
+        self.assertEqual(1, AcceptsVersionNegotiator().get_version(request))
