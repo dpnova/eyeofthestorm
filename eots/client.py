@@ -12,10 +12,11 @@ import json
 class RESTClient(object):
     base_url = None
     version = None
-    def __init__(self, base_url=None, version=None):
+    def __init__(self, base_url=None, version=None, auth=None):
         self.base_url = self.base_url or base_url or ""
         self.version = self.version or version or 0
         self.accept_content_type = "application/json"
+        self.auth = auth
 
     def _full_url(self, path, id=None):
         url = self.base_url + path
@@ -67,6 +68,10 @@ class RESTClient(object):
         headers = self._all_extra_headers()
         new_headers = kwargs.pop("headers", {})
         headers.update(new_headers)
+
+        if self.auth:
+            kwargs['auth'] = self.auth
+
         return treq.request(
             method,
             path,
@@ -81,5 +86,3 @@ class RESTClient(object):
     def _handle_response(self, response):
         return response.json().addCallback(
             lambda content: (response, content))
-
-
