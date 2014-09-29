@@ -44,6 +44,7 @@ class RESTHandler(RequestHandler):
         self.resource.check_permissions()
         self.resource.check_throttles()
         self.resource.perform_content_negotiation()
+
         self.parsed_body = self.resource.accepted_parser.parse(
             self.request.body)
         self.resource.apply_serializer(self.parsed_body).addCallback(
@@ -120,7 +121,8 @@ class RESTHandler(RequestHandler):
         )
 
     def delete(self, id=None):
-        pass
+        """Accept a DELETE request to remove an existing object"""
+        return maybeDeferred(self.resource.delete, id).addCallback(self.render)
 
     def patch(self, id=None):
         pass
