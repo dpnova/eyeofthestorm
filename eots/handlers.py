@@ -130,7 +130,7 @@ class RESTHandler(RequestHandler):
     def put(self, id=None):
         """Accept a PUT request to update an existing object"""
         return maybeDeferred(
-            self.resource.update, self.validated_request_data
+            self.resource.update, id, self.validated_request_data
         ).addCallback(
             self.render
         )
