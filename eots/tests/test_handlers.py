@@ -78,8 +78,14 @@ class RESTHandlerTest(unittest.TestCase):
         return self.handler.post().addCallbacks(cb, log.err)
 
     def test_delete(self):
-        # tbc
-        pass
+        self.handler.resource.delete.return_value = None
+        self.handler.render = Mock(return_value=succeed(None))
+
+        def handle_result(result):
+            self.handler.render.assert_called_with(None)
+            self.assertTrue(self.handler._status_code, 204)
+
+        return self.handler.delete().addBoth(handle_result)
 
     def test_patch(self):
         self.handler.patch()
