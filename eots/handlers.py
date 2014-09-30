@@ -44,6 +44,7 @@ class RESTHandler(RequestHandler):
         self.resource.check_permissions()
         self.resource.check_throttles()
         self.resource.perform_content_negotiation()
+
         self.parsed_body = self.resource.accepted_parser.parse(
             self.request.body)
         self.resource.apply_serializer(self.parsed_body).addCallback(
@@ -120,7 +121,16 @@ class RESTHandler(RequestHandler):
         )
 
     def delete(self, id=None):
-        pass
+        """Accept a DELETE request to remove an existing object"""
+
+        def before_render(result):
+            """Raise a 204 on DELETE"""
+            self.set_status(204)
+            return result
+
+        return maybeDeferred(
+            self.resource.delete, id
+        ).addCallback(before_render).addCallback(self.render)
 
     def patch(self, id=None):
         pass
@@ -128,7 +138,7 @@ class RESTHandler(RequestHandler):
     def put(self, id=None):
         """Accept a PUT request to update an existing object"""
         return maybeDeferred(
-            self.resource.update, self.validated_request_data
+            self.resource.update, id, self.validated_request_data
         ).addCallback(
             self.render
         )
