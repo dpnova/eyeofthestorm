@@ -122,7 +122,15 @@ class RESTHandler(RequestHandler):
 
     def delete(self, id=None):
         """Accept a DELETE request to remove an existing object"""
-        return maybeDeferred(self.resource.delete, id).addCallback(self.render)
+
+        def before_render(result):
+            """Raise a 204 on DELETE"""
+            self.set_status(204)
+            return result
+
+        return maybeDeferred(
+            self.resource.delete, id
+        ).addCallback(before_render).addCallback(self.render)
 
     def patch(self, id=None):
         pass
