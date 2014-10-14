@@ -3,7 +3,6 @@ A simple client for interacting with a REST interface.
 
 FIXME: Note hard coded json as request body! We need to fix this.
 """
-from twisted.internet.defer import inlineCallbacks
 from twisted.python import log
 import treq
 import json
@@ -14,6 +13,11 @@ class EOTSResponse(object):
         self._t_request = treq_request
         self.complete_content = None
         self.complete_json = None
+
+    def body(self, raw=False):
+        if raw:
+            return self.complete_content
+        return self.complete_json
 
     def __getattr__(self, name):
         return getattr(self._t_request, name)
