@@ -1,2 +1,4 @@
 cyclone==1.1
 mock==1.0.1
+treq==0.2.1
+six==1.8.0

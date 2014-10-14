@@ -2,14 +2,15 @@ from cyclone.web import url
 from twisted.internet.defer import maybeDeferred, inlineCallbacks, returnValue
 
 from .authentication import Authenticator
-from .exceptions import UnversionedResourceException
-from .exceptions import ResourceVersionNotFoundError
 from .handlers import RESTHandler
 from .negotiation import ContentNegotiator, AcceptsVersionNegotiator
 from .permissions import Permission
 from .renderers import Renderer, JSONRenderer
 from .serializers import Serializer
 from .parsers import JSONParser
+from .exceptions import (
+    UnversionedResourceException, ResourceVersionNotFoundError,
+    UnsupportedMediaType)
 
 
 def _url_with_prefix(prefix, url):
@@ -190,6 +191,9 @@ class RESTResource(object):
             negotiator.select_renderer(self.handler.request, renderers)
         self.accepted_parser = negotiator.select_parser(
             self.handler.request, self.get_parsers())
+
+        if not self.accepted_parser:
+            raise UnsupportedMediaType
 
     @inlineCallbacks
     def apply_renderer(self, response_data, context):

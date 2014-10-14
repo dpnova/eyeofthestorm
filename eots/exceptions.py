@@ -17,5 +17,13 @@ class ResourceVersionNotFoundError(HTTPError, RESTException):
     pass
 
 
+class UnsupportedMediaType(HTTPError, RESTException):
+    pass
+
+
 class ParseError(RESTException):
+    pass
+
+
+class AuthFailedError(HTTPError, RESTException):
     pass

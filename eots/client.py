@@ -22,10 +22,11 @@ class RESTClient(object):
     base_url = None
     version = None
 
-    def __init__(self, base_url=None, version=None):
+    def __init__(self, base_url=None, version=None, auth=None):
         self.base_url = self.base_url or base_url or ""
         self.version = self.version or version or 0
         self.accept_content_type = "application/json"
+        self.auth = auth
 
     def _full_url(self, path, id=None):
         url = self.base_url + path
@@ -48,8 +49,11 @@ class RESTClient(object):
         )
 
     def list(self, path, *args, **kwargs):
-        return treq.get(
-            self._full_url(path))
+        return self._make_request(
+            "GET",
+            self._full_url(path),
+            **kwargs
+        )
 
     def update(self, path, id, **kwargs):
         return self._make_request(
@@ -59,24 +63,32 @@ class RESTClient(object):
         )
 
     def delete(self, path, id, *args, **kwargs):
-        return treq.delete(
+        return self._make_request(
+            "DELETE",
             self._full_url(path, id),
-            headers=self._all_extra_headers())
+            **kwargs
+        )
 
     def create(self, path, data, **kwargs):
         path = self._full_url(path)
         return self._make_request("POST", path, data=data, **kwargs)
 
     def info(self, path, id=None, *args, **kwargs):
-        return treq.options(
+        return self._make_request(
+            "OPTIONS",
             self._full_url(path, id),
-            headers=self._all_extra_headers())
+            **kwargs
+        )
 
     def _make_request(self, method, path, data=None, *args, **kwargs):
         data = json.dumps(data) if data is not None else None
         headers = self._all_extra_headers()
         new_headers = kwargs.pop("headers", {})
         headers.update(new_headers)
+
+        if self.auth:
+            kwargs['auth'] = self.auth
+
         return treq.request(
             method,
             path,
@@ -96,4 +108,3 @@ class RESTClient(object):
         response.complete_content = content
         response.complete_json = json.loads(content)
         return response
-
