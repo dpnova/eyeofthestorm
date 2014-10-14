@@ -36,7 +36,6 @@ class RESTClient(object):
             url += "/%s" % id
         return url
 
-
     def _all_extra_headers(self):
         return {
             "Accept": "%s; v=%s" % (self.accept_content_type, self.version),
