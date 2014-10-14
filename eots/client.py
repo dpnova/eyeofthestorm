@@ -9,9 +9,19 @@ import treq
 import json
 
 
+class EOTSResponse(object):
+    def __init__(self, treq_request):
+        self._t_request = treq_request
+        self.complete_content = None
+
+    def __getattr__(self, name):
+        return getattr(self._t_request, name)
+
+
 class RESTClient(object):
     base_url = None
     version = None
+
     def __init__(self, base_url=None, version=None):
         self.base_url = self.base_url or base_url or ""
         self.version = self.version or version or 0
@@ -79,7 +89,11 @@ class RESTClient(object):
         )
 
     def _handle_response(self, response):
-        return response.json().addCallback(
-            lambda content: (response, content))
+        eots_response = EOTSResponse(response)
+        return response.content().addCallback(self.got_content, eots_response)
 
+    def got_content(self, content, response):
+        response.complete_content = content
+        response.complete_json = json.loads(content)
+        return response
 
