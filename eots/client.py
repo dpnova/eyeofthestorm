@@ -13,6 +13,7 @@ class EOTSResponse(object):
     def __init__(self, treq_request):
         self._t_request = treq_request
         self.complete_content = None
+        self.complete_json = None
 
     def __getattr__(self, name):
         return getattr(self._t_request, name)
@@ -23,6 +24,7 @@ class RESTClient(object):
     version = None
 
     def __init__(self, base_url=None, version=None, auth=None):
+        """"""
         self.base_url = self.base_url or base_url or ""
         self.version = self.version or version or 0
         self.accept_content_type = "application/json"
