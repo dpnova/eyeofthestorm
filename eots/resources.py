@@ -93,6 +93,31 @@ class ResourceSet(object):
                 kwargs=list_handler_data),
         ]
 
+    def get_nested_urls(self, parent, prefix="", data=None):
+        """
+        Get the set of urls for this rest resource when nested.
+
+        Note: until we need it, only supporting non-detail methods.
+
+        /prefix/slug
+        """
+        slug = self.__class__.__name__.lower() if not self.slug else self.slug
+        list_handler_data = {
+            "resource_set": self
+        }
+        list_handler_data.update(data or {})
+        parent_url = parent.get_urls(
+            prefix,
+            data
+        )[0].regex.pattern.rstrip("$")
+        return [
+            url(
+                _url_with_prefix(
+                    parent_url, slug),
+                self.handler, name="%s_below_%s" % (self.slug, parent.slug),
+                kwargs=list_handler_data),
+        ]
+
 
 class RESTResource(object):
     """
