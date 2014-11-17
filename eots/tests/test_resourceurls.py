@@ -23,4 +23,4 @@ class ResourceURLsTest(unittest.TestCase):
         c = RS("child")
         with l.register(p) as parent:
             parent.register(c)
-        print l.urls
+        self.assertEqual(len(l.urls), 3)
