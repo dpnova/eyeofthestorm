@@ -84,7 +84,7 @@ class ResourceSet(object):
         list_handler_data.update(data or {})
         return [
             url(
-                _url_with_prefix(prefix, slug) + r"/(.+)$",
+                _url_with_prefix(prefix, slug) + r"/([^/]+)$",
                 self.handler, name="%s_root" % self.slug,
                 kwargs=detail_handler_data),
             url(
