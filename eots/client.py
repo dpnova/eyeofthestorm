@@ -93,7 +93,14 @@ class RESTClient(object):
 
         if self.auth:
             kwargs['auth'] = self.auth
-
+        if kwargs.get('params', {}):
+            params = kwargs.get('params', {})
+            for key, value in params.items():
+                value = utf8(value) if type(value) == str else value
+                params[key] = value
+            if params:
+                kwargs['params'] = params
+        
         return treq.request(
             method,
             path,
