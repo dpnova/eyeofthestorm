@@ -4,6 +4,7 @@ A simple client for interacting with a REST interface.
 FIXME: Note hard coded json as request body! We need to fix this.
 """
 from twisted.python import log
+from cyclone.escape import utf8
 import treq
 import json
 
@@ -86,6 +87,7 @@ class RESTClient(object):
         )
 
     def _make_request(self, method, path, data=None, *args, **kwargs):
+        """Parse and create the request object."""
         data = json.dumps(data) if data is not None else None
         headers = self._all_extra_headers()
         new_headers = kwargs.pop("headers", {})
@@ -93,6 +95,15 @@ class RESTClient(object):
 
         if self.auth:
             kwargs['auth'] = self.auth
+
+        if kwargs.get('params', {}):
+            params = kwargs.get('params', {})
+
+            for key, value in params.items():
+                value = utf8(value) if isinstance(value, basestring) else value
+                params[key] = value
+            if params:
+                kwargs['params'] = params
 
         return treq.request(
             method,
